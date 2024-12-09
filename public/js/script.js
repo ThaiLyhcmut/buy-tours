@@ -54,6 +54,42 @@ if(formCart){
   })
 }
 
+const eventDeleteItem = () => {
+  const listButtonDelete = document.querySelectorAll("[btn-delete]")
+  if(listButtonDelete.length > 0){
+    listButtonDelete.forEach(button => {
+      button.addEventListener("click", () => {
+        const tourId = button.getAttribute("btn-delete")
+        const cart = JSON.parse(localStorage.getItem("cart"))
+        const newCart = cart.filter(item => item.tour_id != tourId)
+        localStorage.setItem("cart", JSON.stringify(newCart))
+        drawCart()
+      })
+    })
+  }
+}
+
+const eventChangeQuantity = () => {
+  const listInputQuantity = document.querySelectorAll(".table-cart input[name='quantity']")
+  if(listInputQuantity.length > 0){
+    listInputQuantity.forEach(item => {
+      item.addEventListener("change", () => {
+        const quantity = parseInt(item.value)
+        if(quantity > 0){
+          const tourId = item.getAttribute("item-id")
+          const cart = JSON.parse(localStorage.getItem("cart"))
+          const exitsItem = cart.find(item => item.tour_id == tourId)
+          if(exitsItem) {
+            exitsItem.quantity = quantity
+            localStorage.setItem("cart", JSON.stringify(cart));
+            drawCart()
+          }
+        }
+      })
+    })
+  }
+}
+
 const drawCart = () => {
   const tableCart = document.querySelector(".table-cart")
   if(tableCart){
@@ -100,7 +136,33 @@ const drawCart = () => {
         if(totlePirce){
           totlePirce.innerHTML = totle.toLocaleString()
         }
+        eventDeleteItem()
+        eventChangeQuantity()
       })
   }
 }
 drawCart()
+
+
+const formOrder = document.querySelector("[form-order]")
+if(formOrder) {
+  formOrder.addEventListener("submit", (event) => {
+    const dataFinal = {
+      info: {
+        fullName: event.target.fullName.value,
+        phone: event.target.phone.value,
+        note: event.target.note.value
+      },
+      cart: JSON.parse(localStorage.getItem("cart"))
+    }
+    fetch("/order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dataFinal)
+    })
+      .then(res => res.json())
+      .then(data => console.log(data))
+  })
+}
