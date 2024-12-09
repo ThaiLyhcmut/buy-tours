@@ -10,7 +10,7 @@ export const index = async (req: Request, res: Response) => {
 
 export const postList = async (req: Request, res: Response) => {
   const tours = req.body;
-  let totle = 0
+  let total = 0
   for (const tour of tours) {
     const infoTour = await Tour.findOne({
       where: {
@@ -25,12 +25,12 @@ export const postList = async (req: Request, res: Response) => {
     tour["title"] = infoTour["title"]
     tour["slug"] = infoTour["slug"]
     tour["price_special"] = (1 - infoTour["discount"]/100) * infoTour["price"]
-    tour["totle"] = tour["price_special"] * tour["quantity"]
-    totle = totle + tour["totle"]
+    tour["total"] = tour["price_special"] * tour["quantity"]
+    total = total + tour["total"]
   }
 
   res.json({
     tours: tours,
-    totle: totle
+    total: total
   })
 }

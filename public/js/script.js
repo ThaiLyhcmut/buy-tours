@@ -102,7 +102,7 @@ const drawCart = () => {
     })
       .then(res => res.json())
       .then(data => {
-        const totle = data.totle;
+        const total = data.total;
         const tours = data.tours;
 
         const htmlsTr = tours.map((item,index) => 
@@ -122,7 +122,7 @@ const drawCart = () => {
                   style="width: 60px"
                 />
               </td>
-              <td>${item.totle.toLocaleString()}đ</td>
+              <td>${item.total.toLocaleString()}đ</td>
               <td>
                 <button class="btn btn-sm btn-danger" btn-delete=${item.tour_id}>Xóa</button>
               </td>
@@ -132,9 +132,9 @@ const drawCart = () => {
 
         const tbody = tableCart.querySelector("tbody")
         tbody.innerHTML = htmlsTr.join("")
-        const totlePirce = document.querySelector(".totle-price")
-        if(totlePirce){
-          totlePirce.innerHTML = totle.toLocaleString()
+        const totalPirce = document.querySelector(".total-price")
+        if(totalPirce){
+          totalPirce.innerHTML = total.toLocaleString()
         }
         eventDeleteItem()
         eventChangeQuantity()
@@ -147,6 +147,7 @@ drawCart()
 const formOrder = document.querySelector("[form-order]")
 if(formOrder) {
   formOrder.addEventListener("submit", (event) => {
+    event.preventDefault()
     const dataFinal = {
       info: {
         fullName: event.target.fullName.value,
@@ -163,6 +164,12 @@ if(formOrder) {
       body: JSON.stringify(dataFinal)
     })
       .then(res => res.json())
-      .then(data => console.log(data))
+      .then(data => {
+        if(data.code == "success"){
+          console.log("XIn chao")
+          localStorage.setItem("cart", JSON.stringify([]))
+          window.location.href = `/order/success?orderCode=${data.orderCode}`
+        }
+      })
   })
 }
